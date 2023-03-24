@@ -1,4 +1,8 @@
 // Importation des classes nécessaires pour le fonctionnement de l'activité
+
+/////     CategoryAdapter
+
+
 package fr.isen.legrand.androiderestaurant
 
 import android.os.Bundle

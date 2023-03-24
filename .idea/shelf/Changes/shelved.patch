@@ -1,0 +1,146 @@
+Index: app/src/main/java/fr/isen/legrand/androiderestaurant/CategoryActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>// Importation des classes nécessaires pour le fonctionnement de l'activité\r\npackage fr.isen.legrand.androiderestaurant\r\n\r\nimport android.os.Bundle\r\nimport androidx.appcompat.app.AppCompatActivity\r\nimport androidx.recyclerview.widget.LinearLayoutManager\r\nimport androidx.recyclerview.widget.RecyclerView\r\nimport com.android.volley.AuthFailureError\r\nimport com.android.volley.Request\r\nimport com.android.volley.Response\r\nimport com.android.volley.toolbox.StringRequest\r\nimport com.android.volley.toolbox.Volley\r\nimport org.json.JSONObject\r\n\r\n\r\n// Définition de la classe \"entrees\" qui étend la classe \"AppCompatActivity\"\r\nclass CategoryActivity : AppCompatActivity() {\r\n\r\n    // Cette méthode est appelée lorsque l'activité est créée\r\n    override fun onCreate(savedInstanceState: Bundle?) {\r\n        super.onCreate(savedInstanceState)\r\n\r\n        // Définition du layout de l'activité\r\n        setContentView(R.layout.menu_activity)\r\n\r\n        // Définition du titre de l'activité en fonction de la catégorie choisie\r\n        when (intent.getStringExtra(\"categorie\")) {\r\n            CATEGORY_ENTREES -> setTitle(getString(R.string.entrees))\r\n            CATEGORY_PLATS -> setTitle(getString(R.string.plats))\r\n            CATEGORY_DESSERTS -> setTitle(getString(R.string.desserts))\r\n        }\r\n\r\n        // Initialisation de la vue du RecyclerView\r\n        setupRecyclerView()\r\n    }\r\n\r\n    // Cette méthode retourne une liste de chaînes de caractères qui représentent les éléments du menu en fonction de la catégorie choisie\r\n    private fun getMenuList(): List<String> {\r\n        return when (intent.getStringExtra(\"categorie\")) {\r\n            CATEGORY_ENTREES -> resources.getStringArray(R.array.entrees).toList()\r\n            CATEGORY_PLATS -> resources.getStringArray(R.array.plats).toList()\r\n            CATEGORY_DESSERTS -> resources.getStringArray(R.array.desserts).toList()\r\n            else -> emptyList() // Si la catégorie est inconnue, retourner une liste vide\r\n        }\r\n    }\r\n\r\n    // Cette méthode initialise la vue du RecyclerView\r\n    private fun setupRecyclerView() {\r\n        val recyclerView = findViewById<RecyclerView>(R.id.menu_recycler_view)\r\n\r\n        // Définition du layoutManager\r\n        recyclerView.layoutManager = LinearLayoutManager(this)\r\n\r\n        // Définition de l'adapter avec l'instance de la classe \"MenuAdapter\"\r\n        recyclerView.adapter = MenuAdapter(this, getMenuList())\r\n    }\r\n\r\n    // Constantes pour les différentes catégories possibles\r\n    companion object {\r\n        const val CATEGORY_ENTREES = \"entrees\"\r\n        const val CATEGORY_PLATS = \"plats\"\r\n        const val CATEGORY_DESSERTS = \"desserts\"\r\n    }\r\n\r\n    // TEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEST\r\n\r\n    private fun makeRequest(\r\n        url: String,\r\n        params: JSONObject,\r\n        responseListener: Response.Listener<String>,\r\n        errorListener: Response.ErrorListener\r\n    ) {\r\n        val queue = Volley.newRequestQueue(this)\r\n        val request: StringRequest =\r\n            object : StringRequest(Request.Method.POST, url, responseListener, errorListener) {\r\n                @Throws(AuthFailureError::class)\r\n                override fun getBody(): ByteArray {\r\n                    return params.toString().toByteArray()\r\n                }\r\n\r\n                override fun getBodyContentType(): String {\r\n                    return \"application/json\"\r\n                }\r\n            }\r\n        queue.add(request)\r\n    }\r\n\r\n}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/fr/isen/legrand/androiderestaurant/CategoryActivity.kt b/app/src/main/java/fr/isen/legrand/androiderestaurant/CategoryActivity.kt
+--- a/app/src/main/java/fr/isen/legrand/androiderestaurant/CategoryActivity.kt	(revision e00dd8c6528c73097192360391f055e1f6f4c58a)
++++ b/app/src/main/java/fr/isen/legrand/androiderestaurant/CategoryActivity.kt	(date 1679651757393)
+@@ -2,11 +2,13 @@
+ package fr.isen.legrand.androiderestaurant
+ 
+ import android.os.Bundle
++import android.util.Log
+ import androidx.appcompat.app.AppCompatActivity
+ import androidx.recyclerview.widget.LinearLayoutManager
+ import androidx.recyclerview.widget.RecyclerView
+ import com.android.volley.AuthFailureError
+ import com.android.volley.Request
++import com.android.volley.RequestQueue
+ import com.android.volley.Response
+ import com.android.volley.toolbox.StringRequest
+ import com.android.volley.toolbox.Volley
+@@ -23,6 +25,8 @@
+         // Définition du layout de l'activité
+         setContentView(R.layout.menu_activity)
+ 
++
++
+         // Définition du titre de l'activité en fonction de la catégorie choisie
+         when (intent.getStringExtra("categorie")) {
+             CATEGORY_ENTREES -> setTitle(getString(R.string.entrees))
+@@ -70,19 +74,33 @@
+         responseListener: Response.Listener<String>,
+         errorListener: Response.ErrorListener
+     ) {
++        val url = "http://test.api.catering.bluecodegames.com/menu"
++        val params = JSONObject()
++        params.put("id_shop", 1)
+         val queue = Volley.newRequestQueue(this)
+-        val request: StringRequest =
+-            object : StringRequest(Request.Method.POST, url, responseListener, errorListener) {
+-                @Throws(AuthFailureError::class)
+-                override fun getBody(): ByteArray {
+-                    return params.toString().toByteArray()
+-                }
++        val request = object : StringRequest(
++            Method.POST, url,
++            Response.Listener { response ->
++                Log.d(TAG, "Response: $response")
++                val entrees = parseEntreesFromResponse(response)
++                updateMenuRecyclerView(entrees)
++            },
++            Response.ErrorListener { error ->
++                Log.e(TAG, "Error while fetching entrees: ${error.message}")
++            }) {
++            // Ajout des paramètres de la requête
++            @Throws(AuthFailureError::class)
++            override fun getBody(): ByteArray {
++                return params.toString().toByteArray()
++            }
+ 
+-                override fun getBodyContentType(): String {
+-                    return "application/json"
+-                }
+-            }
++            override fun getBodyContentType(): String {
++                return "application/json"
++            }
++        }
++
+         queue.add(request)
+     }
+ 
+-}
+\ No newline at end of file
++}
++
+Index: app/src/main/java/fr/isen/legrand/androiderestaurant/HomeActivity.kt
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>// Importation des classes nécessaires pour le fonctionnement de l'activity\r\npackage fr.isen.legrand.androiderestaurant\r\n\r\nimport android.annotation.SuppressLint\r\nimport android.content.Intent\r\nimport android.os.Bundle\r\nimport android.view.View\r\nimport android.widget.Button\r\nimport androidx.appcompat.app.AppCompatActivity\r\nimport com.android.volley.Response\r\nimport fr.isen.legrand.androiderestaurant.databinding.ActivityHomeBinding\r\nimport org.json.JSONException\r\nimport org.json.JSONObject\r\n\r\n\r\n// Définition de la classe \"HomeActivity\" qui étend la classe \"AppCompatActivity\"\r\nclass HomeActivity : AppCompatActivity() {\r\n\r\n    // Initialisation de la variable de liaison\r\n    private lateinit var binding: ActivityHomeBinding\r\n\r\n    // Cette méthode est appelée lorsque l'activity est créée\r\n    @SuppressLint(\"WrongViewCast\")\r\n    override fun onCreate(savedInstanceState: Bundle?) {\r\n        super.onCreate(savedInstanceState)\r\n\r\n        // Liaison de l'activity à son layout correspondant\r\n        binding = ActivityHomeBinding.inflate(layoutInflater)\r\n        setContentView(binding.root)\r\n\r\n        // Définition des actions à effectuer lorsqu'on clique sur chaque bouton de catégorie\r\n        binding.entrees.setOnClickListener {\r\n            val intent = Intent(this, Entrees::class.java)\r\n            intent.putExtra(\"categorie\", Entrees.CATEGORY_ENTREES)\r\n            startActivity(intent)\r\n            val entreesButton: Button = findViewById<Button>(R.id.entrees)\r\n            entreesButton.setOnClickListener(object : View.OnClickListener {\r\n                override fun onClick(view: View?) {\r\n                    val url = \"http://test.api.catering.bluecodegames.com/menu\"\r\n                    val params = JSONObject()\r\n                    try {\r\n                        params.put(\"id_shop\", \"1\")\r\n                    } catch (e: JSONException) {\r\n                        e.printStackTrace()\r\n                    }\r\n                    makeRequest(url, params, { response ->\r\n                        // Traitement de la réponse JSON\r\n                        try {\r\n                            val jsonObject = JSONObject(response.toString())\r\n                            val entrees = jsonObject.getJSONArray(\"entrees\")\r\n                            val entreesList: MutableList<String> = ArrayList()\r\n                            for (i in 0 until entrees.length()) {\r\n                                entreesList.add(entrees.getString(i))\r\n                            }\r\n                            // Mettre à jour l'interface utilisateur avec la liste des entrées\r\n                            // ...\r\n                        } catch (e: JSONException) {\r\n                            e.printStackTrace()\r\n                        }\r\n                    }, { error -> // Gestion des erreurs\r\n                        error.printStackTrace()\r\n                    })\r\n                }\r\n\r\n                private fun makeRequest(url: String, params: JSONObject, listener: Response.Listener<String?>, errorListener: Response.ErrorListener) {\r\n\r\n                }\r\n            })\r\n        }\r\n\r\n        binding.plats.setOnClickListener {\r\n            val intent = Intent(this, CategoryActivity::class.java)\r\n            intent.putExtra(\"categorie\", CategoryActivity.CATEGORY_PLATS)\r\n            startActivity(intent)\r\n        }\r\n\r\n        binding.desserts.setOnClickListener {\r\n            val intent = Intent(this, CategoryActivity::class.java)\r\n            intent.putExtra(\"categorie\", CategoryActivity.CATEGORY_DESSERTS)\r\n            startActivity(intent)\r\n        }\r\n    }\r\n}\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app/src/main/java/fr/isen/legrand/androiderestaurant/HomeActivity.kt b/app/src/main/java/fr/isen/legrand/androiderestaurant/HomeActivity.kt
+--- a/app/src/main/java/fr/isen/legrand/androiderestaurant/HomeActivity.kt	(revision e00dd8c6528c73097192360391f055e1f6f4c58a)
++++ b/app/src/main/java/fr/isen/legrand/androiderestaurant/HomeActivity.kt	(date 1679649030428)
+@@ -6,6 +6,7 @@
+ import android.os.Bundle
+ import android.view.View
+ import android.widget.Button
++import android.widget.TextView
+ import androidx.appcompat.app.AppCompatActivity
+ import com.android.volley.Response
+ import fr.isen.legrand.androiderestaurant.databinding.ActivityHomeBinding
+@@ -20,7 +21,7 @@
+     private lateinit var binding: ActivityHomeBinding
+ 
+     // Cette méthode est appelée lorsque l'activity est créée
+-    @SuppressLint("WrongViewCast")
++
+     override fun onCreate(savedInstanceState: Bundle?) {
+         super.onCreate(savedInstanceState)
+ 
+@@ -33,39 +34,7 @@
+             val intent = Intent(this, Entrees::class.java)
+             intent.putExtra("categorie", Entrees.CATEGORY_ENTREES)
+             startActivity(intent)
+-            val entreesButton: Button = findViewById<Button>(R.id.entrees)
+-            entreesButton.setOnClickListener(object : View.OnClickListener {
+-                override fun onClick(view: View?) {
+-                    val url = "http://test.api.catering.bluecodegames.com/menu"
+-                    val params = JSONObject()
+-                    try {
+-                        params.put("id_shop", "1")
+-                    } catch (e: JSONException) {
+-                        e.printStackTrace()
+-                    }
+-                    makeRequest(url, params, { response ->
+-                        // Traitement de la réponse JSON
+-                        try {
+-                            val jsonObject = JSONObject(response.toString())
+-                            val entrees = jsonObject.getJSONArray("entrees")
+-                            val entreesList: MutableList<String> = ArrayList()
+-                            for (i in 0 until entrees.length()) {
+-                                entreesList.add(entrees.getString(i))
+-                            }
+-                            // Mettre à jour l'interface utilisateur avec la liste des entrées
+-                            // ...
+-                        } catch (e: JSONException) {
+-                            e.printStackTrace()
+-                        }
+-                    }, { error -> // Gestion des erreurs
+-                        error.printStackTrace()
+-                    })
+-                }
+ 
+-                private fun makeRequest(url: String, params: JSONObject, listener: Response.Listener<String?>, errorListener: Response.ErrorListener) {
+-
+-                }
+-            })
+         }
+ 
+         binding.plats.setOnClickListener {

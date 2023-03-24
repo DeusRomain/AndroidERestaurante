@@ -1,4 +1,8 @@
 // Importation des classes nécessaires pour le fonctionnement de l'activity
+
+/////       DetailActivity
+
+
 package fr.isen.legrand.androiderestaurant
 
 import android.annotation.SuppressLint

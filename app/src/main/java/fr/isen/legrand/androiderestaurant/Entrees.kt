@@ -1,4 +1,6 @@
 // Importation des classes nécessaires pour le fonctionnement de l'activité
+
+/////        MenuActivity
 package fr.isen.legrand.androiderestaurant
 
 import android.annotation.SuppressLint
@@ -8,6 +10,16 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import fr.isen.legrand.androiderestaurant.MenuAdapter
 import fr.isen.legrand.androiderestaurant.R
+import org.json.JSONObject
+
+import android.content.Intent
+import android.provider.ContactsContract
+import android.util.Log
+import android.view.View
+import com.android.volley.Request
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
+import com.google.gson.Gson
 
 @SuppressLint("ParcelCreator")
 class Entrees : AppCompatActivity() {
@@ -56,6 +68,41 @@ class Entrees : AppCompatActivity() {
         const val CATEGORY_ENTREES = "entrees"
         const val CATEGORY_PLATS = "plats"
         const val CATEGORY_DESSERTS = "desserts"
+    }
+
+    // NEW
+    private fun fromServer(category : String) {
+        val url = "http://test.api.catering.bluecodegames.com/menu"
+        val obj = JSONObject()
+        obj.put("id_shop", "1")
+        val queue = Volley.newRequestQueue(this@Entrees)
+
+        val jsonObjectRequest = JsonObjectRequest(Request.Method.POST, url, obj,
+            { response ->
+
+                Log.d("Response", "$response")
+                Log.d("MenuActivity", "Api call succes")
+                val menu = Gson().fromJson(response.toString(), ContactsContract.Contacts.Data::class.java)
+
+                val items = menu.data.firstOrNull{ it.name_fr == category }?.items ?: arrayListOf() // "?."  propage le null et "?:" si c'est null, Si il n'a pas trouvé d'élement par rapport à la catégorie,il renvoie null
+                val adapter = CategoryActivity(items) {
+                    val intent = Intent(this@Entrees, Details::class.java)
+
+                    intent.putExtra(CATEGORY_ENTREES, it)
+                    startActivity(intent)
+                }
+                binding.loaderIcon.visibility = View.GONE
+                binding.ListCategory.adapter = adapter
+
+            },
+            { error ->
+                Log.d("MenuActivity", "La requête à échoué")
+            }
+        )
+        queue.add(jsonObjectRequest)
+    }
+
+
     }
 
 }
