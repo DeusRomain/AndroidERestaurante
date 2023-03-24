@@ -5,9 +5,16 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.android.volley.AuthFailureError
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
+import org.json.JSONObject
+
 
 // Définition de la classe "entrees" qui étend la classe "AppCompatActivity"
-class entrees : AppCompatActivity() {
+class CategoryActivity : AppCompatActivity() {
 
     // Cette méthode est appelée lorsque l'activité est créée
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -54,5 +61,28 @@ class entrees : AppCompatActivity() {
         const val CATEGORY_PLATS = "plats"
         const val CATEGORY_DESSERTS = "desserts"
     }
-}
 
+    // TEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEST
+
+    private fun makeRequest(
+        url: String,
+        params: JSONObject,
+        responseListener: Response.Listener<String>,
+        errorListener: Response.ErrorListener
+    ) {
+        val queue = Volley.newRequestQueue(this)
+        val request: StringRequest =
+            object : StringRequest(Request.Method.POST, url, responseListener, errorListener) {
+                @Throws(AuthFailureError::class)
+                override fun getBody(): ByteArray {
+                    return params.toString().toByteArray()
+                }
+
+                override fun getBodyContentType(): String {
+                    return "application/json"
+                }
+            }
+        queue.add(request)
+    }
+
+}

@@ -8,32 +8,27 @@ import android.view.View
 import android.widget.Button
 import androidx.appcompat.app.AppCompatActivity
 import com.android.volley.Response
+import fr.isen.legrand.androiderestaurant.R.id.entrees
 import fr.isen.legrand.androiderestaurant.databinding.ActivityHomeBinding
 import org.json.JSONException
 import org.json.JSONObject
 
+class Details : AppCompatActivity() {
+    private val binding: ActivityHomeBinding
+        get() {
+            TODO()
+        }
 
-// Définition de la classe "HomeActivity" qui étend la classe "AppCompatActivity"
-class HomeActivity : AppCompatActivity() {
-
-    // Initialisation de la variable de liaison
-    private lateinit var binding: ActivityHomeBinding
-
-    // Cette méthode est appelée lorsque l'activity est créée
     @SuppressLint("WrongViewCast")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Liaison de l'activity à son layout correspondant
-        binding = ActivityHomeBinding.inflate(layoutInflater)
-        setContentView(binding.root)
-
+        setContentView(R.layout.activity_details)
         // Définition des actions à effectuer lorsqu'on clique sur chaque bouton de catégorie
         binding.entrees.setOnClickListener {
             val intent = Intent(this, Entrees::class.java)
             intent.putExtra("categorie", Entrees.CATEGORY_ENTREES)
             startActivity(intent)
-            val entreesButton: Button = findViewById<Button>(R.id.entrees)
+            val entreesButton: Button = findViewById<Button>(entrees)
             entreesButton.setOnClickListener(object : View.OnClickListener {
                 override fun onClick(view: View?) {
                     val url = "http://test.api.catering.bluecodegames.com/menu"
@@ -66,18 +61,6 @@ class HomeActivity : AppCompatActivity() {
 
                 }
             })
-        }
-
-        binding.plats.setOnClickListener {
-            val intent = Intent(this, CategoryActivity::class.java)
-            intent.putExtra("categorie", CategoryActivity.CATEGORY_PLATS)
-            startActivity(intent)
-        }
-
-        binding.desserts.setOnClickListener {
-            val intent = Intent(this, CategoryActivity::class.java)
-            intent.putExtra("categorie", CategoryActivity.CATEGORY_DESSERTS)
-            startActivity(intent)
         }
     }
 }

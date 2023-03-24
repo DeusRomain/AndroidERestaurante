@@ -32,4 +32,7 @@ class MenuAdapter(private val context: Context, private val menuList: List<Strin
     override fun getItemCount(): Int {
         return menuList.size
     }
+
+    // TESSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSST
+
 }
