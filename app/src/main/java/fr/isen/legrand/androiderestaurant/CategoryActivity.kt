@@ -3,18 +3,15 @@
 /////     CategoryAdapter
 
 
+@file:Suppress("UNREACHABLE_CODE")
+
 package fr.isen.legrand.androiderestaurant
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.android.volley.AuthFailureError
-import com.android.volley.Request
-import com.android.volley.Response
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
-import org.json.JSONObject
+import fr.isen.legrand.androiderestaurant.R.layout.menu_activity
 
 
 // Définition de la classe "entrees" qui étend la classe "AppCompatActivity"
@@ -25,13 +22,13 @@ class CategoryActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         // Définition du layout de l'activité
-        setContentView(R.layout.menu_activity)
+        setContentView(menu_activity)
 
         // Définition du titre de l'activité en fonction de la catégorie choisie
         when (intent.getStringExtra("categorie")) {
-            CATEGORY_ENTREES -> setTitle(getString(R.string.entrees))
-            CATEGORY_PLATS -> setTitle(getString(R.string.plats))
-            CATEGORY_DESSERTS -> setTitle(getString(R.string.desserts))
+            CATEGORY_ENTREES -> this.title = getString(R.string.entrees)
+            CATEGORY_PLATS -> title = getString(R.string.plats)
+            CATEGORY_DESSERTS -> title = getString(R.string.desserts)
         }
 
         // Initialisation de la vue du RecyclerView
@@ -44,8 +41,17 @@ class CategoryActivity : AppCompatActivity() {
             CATEGORY_ENTREES -> resources.getStringArray(R.array.entrees).toList()
             CATEGORY_PLATS -> resources.getStringArray(R.array.plats).toList()
             CATEGORY_DESSERTS -> resources.getStringArray(R.array.desserts).toList()
-            else -> emptyList() // Si la catégorie est inconnue, retourner une liste vide
+            else -> emptyList() // Si la     catégorie est inconnue, retourner une liste vide
+
         }
+        // Afficher la liste des entrées dans le terminal
+        println("Liste des entrées:")
+        println(this.makeRequest())
+
+    }
+
+    private fun makeRequest() {
+        TODO("Not yet implemented")
     }
 
     // Cette méthode initialise la vue du RecyclerView
@@ -68,25 +74,6 @@ class CategoryActivity : AppCompatActivity() {
 
     // TEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEST
 
-    private fun makeRequest(
-        url: String,
-        params: JSONObject,
-        responseListener: Response.Listener<String>,
-        errorListener: Response.ErrorListener
-    ) {
-        val queue = Volley.newRequestQueue(this)
-        val request: StringRequest =
-            object : StringRequest(Request.Method.POST, url, responseListener, errorListener) {
-                @Throws(AuthFailureError::class)
-                override fun getBody(): ByteArray {
-                    return params.toString().toByteArray()
-                }
 
-                override fun getBodyContentType(): String {
-                    return "application/json"
-                }
-            }
-        queue.add(request)
-    }
 
 }

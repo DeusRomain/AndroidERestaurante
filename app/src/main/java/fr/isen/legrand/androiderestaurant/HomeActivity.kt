@@ -6,9 +6,14 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import com.android.volley.Request
 import com.android.volley.Response
+import com.android.volley.toolbox.JsonObjectRequest
+import com.android.volley.toolbox.Volley
 import fr.isen.legrand.androiderestaurant.databinding.ActivityHomeBinding
+import org.json.JSONArray
 import org.json.JSONException
 import org.json.JSONObject
 
@@ -33,7 +38,7 @@ class HomeActivity : AppCompatActivity() {
             val intent = Intent(this, Entrees::class.java)
             intent.putExtra("categorie", Entrees.CATEGORY_ENTREES)
             startActivity(intent)
-            val entreesButton: Button = findViewById<Button>(R.id.entrees)
+            val entreesButton: Button = findViewById(R.id.entrees)
             entreesButton.setOnClickListener(object : View.OnClickListener {
                 override fun onClick(view: View?) {
                     val url = "http://test.api.catering.bluecodegames.com/menu"
@@ -43,23 +48,7 @@ class HomeActivity : AppCompatActivity() {
                     } catch (e: JSONException) {
                         e.printStackTrace()
                     }
-                    makeRequest(url, params, { response ->
-                        // Traitement de la réponse JSON
-                        try {
-                            val jsonObject = JSONObject(response.toString())
-                            val entrees = jsonObject.getJSONArray("entrees")
-                            val entreesList: MutableList<String> = ArrayList()
-                            for (i in 0 until entrees.length()) {
-                                entreesList.add(entrees.getString(i))
-                            }
-                            // Mettre à jour l'interface utilisateur avec la liste des entrées
-                            // ...
-                        } catch (e: JSONException) {
-                            e.printStackTrace()
-                        }
-                    }, { error -> // Gestion des erreurs
-                        error.printStackTrace()
-                    })
+
                 }
 
                 private fun makeRequest(url: String, params: JSONObject, listener: Response.Listener<String?>, errorListener: Response.ErrorListener) {
@@ -80,4 +69,9 @@ class HomeActivity : AppCompatActivity() {
             startActivity(intent)
         }
     }
+
+}
+
+private fun JSONArray.map(function: () -> Unit): Any {
+    TODO("Not yet implemented")
 }

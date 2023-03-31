@@ -8,8 +8,6 @@ import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import fr.isen.legrand.androiderestaurant.MenuAdapter
-import fr.isen.legrand.androiderestaurant.R
 import org.json.JSONObject
 
 import android.content.Intent
@@ -19,14 +17,18 @@ import android.view.View
 import com.android.volley.Request
 import com.android.volley.toolbox.JsonObjectRequest
 import com.android.volley.toolbox.Volley
-import com.google.gson.Gson
+
+
 
 @SuppressLint("ParcelCreator")
 class Entrees : AppCompatActivity() {
 
+
+
     // Cette méthode est appelée lorsque l'activité est créée
-    override fun onCreate(savedInstanceState: Bundle?) {
+        override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
 
         // Définition du layout de l'activité
         setContentView(R.layout.menu_activity)
@@ -70,7 +72,7 @@ class Entrees : AppCompatActivity() {
         const val CATEGORY_DESSERTS = "desserts"
     }
 
-    // NEW
+
     private fun fromServer(category : String) {
         val url = "http://test.api.catering.bluecodegames.com/menu"
         val obj = JSONObject()
@@ -82,17 +84,12 @@ class Entrees : AppCompatActivity() {
 
                 Log.d("Response", "$response")
                 Log.d("MenuActivity", "Api call succes")
-                val menu = Gson().fromJson(response.toString(), ContactsContract.Contacts.Data::class.java)
+             //   val menu = JSONObject().fromJson(response.toString(), ContactsContract.Contacts.Data::class.java)
 
-                val items = menu.data.firstOrNull{ it.name_fr == category }?.items ?: arrayListOf() // "?."  propage le null et "?:" si c'est null, Si il n'a pas trouvé d'élement par rapport à la catégorie,il renvoie null
-                val adapter = CategoryActivity(items) {
-                    val intent = Intent(this@Entrees, Details::class.java)
+          //      val items = menu.data.firstOrNull{ it.name_fr == category }?.items ?: arrayListOf() // "?."  propage le null et "?:" si c'est null, Si il n'a pas trouvé d'élement par rapport à la catégorie,il renvoie null
 
-                    intent.putExtra(CATEGORY_ENTREES, it)
-                    startActivity(intent)
-                }
-                binding.loaderIcon.visibility = View.GONE
-                binding.ListCategory.adapter = adapter
+       //         binding.loaderIcon.visibility = View.GONE
+         //       binding.ListCategory.adapter = adapter
 
             },
             { error ->
@@ -103,7 +100,15 @@ class Entrees : AppCompatActivity() {
     }
 
 
-    }
+
 
 }
+
+private fun Any.putExtra(categoryEntrees: String, items: Any) {
+
+}
+
+
+
+
 
